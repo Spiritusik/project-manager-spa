@@ -25,7 +25,7 @@
 npm install
 ```
 
-2. Встанови залежності:
+2. Запусти frontend:
 
 ```bash
 npm run dev
