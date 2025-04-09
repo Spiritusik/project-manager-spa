@@ -1,0 +1,104 @@
+{
+  "projects": [
+    {
+      "id": "6089",
+      "name": "First",
+      "description": "",
+      "status": "Active",
+      "createdAt": "2025-04-07T20:09:13.744Z"
+    },
+    {
+      "id": "3fa7",
+      "name": "Second",
+      "description": "Test",
+      "status": "Active",
+      "createdAt": "2025-04-07T20:09:21.122Z"
+    },
+    {
+      "id": "9e37",
+      "name": "Third",
+      "description": "Test",
+      "status": "Completed",
+      "createdAt": "2025-04-09T18:21:21.103Z"
+    },
+    {
+      "id": "5f14",
+      "name": "Fourth",
+      "description": "description",
+      "status": "Archived",
+      "createdAt": "2025-04-09T18:34:13.503Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "8c92",
+      "projectId": "6089",
+      "name": "First",
+      "assignee": "Maksym",
+      "status": "In Progress",
+      "dueDate": "2022-02-20"
+    },
+    {
+      "id": "512c",
+      "projectId": "6089",
+      "name": "Second",
+      "assignee": "Nikita",
+      "status": "To Do",
+      "dueDate": "2023-03-20"
+    },
+    {
+      "id": "6977",
+      "projectId": "6089",
+      "name": "Fourth",
+      "assignee": "Maksym",
+      "status": "Done",
+      "dueDate": "2024-04-09"
+    },
+    {
+      "id": "f9ac",
+      "projectId": "6089",
+      "name": "Fifth",
+      "assignee": "Nikyta",
+      "status": "Done",
+      "dueDate": "2025-04-09"
+    },
+    {
+      "id": "590f",
+      "projectId": "6089",
+      "name": "Sixth",
+      "assignee": "Andrew",
+      "status": "To Do",
+      "dueDate": "2025-05-09"
+    },
+    {
+      "id": "b402",
+      "projectId": "3fa7",
+      "name": "Test",
+      "assignee": "Nikyta",
+      "status": "To Do",
+      "dueDate": "2024-02-20"
+    },
+    {
+      "id": "73ec",
+      "projectId": "5f14",
+      "name": "New",
+      "assignee": "Nikyta",
+      "status": "In Progress",
+      "dueDate": "2025-12-02"
+    }
+  ],
+  "workers": [
+    {
+      "id": "qwe1",
+      "name": "Maksym"
+    },
+    {
+      "id": "qwe2",
+      "name": "Nikyta"
+    },
+    {
+      "id": "qwe3",
+      "name": "Andrew"
+    }
+  ]
+}
