@@ -1,39 +1,38 @@
-# project-manager
+# Project Manager SPA
 
-This template should help get you started developing with Vue 3 in Vite.
+🎯 Односторінковий додаток для управління проєктами та завданнями. Створено з використанням **Vue 3**, **TypeScript**, **Pinia**, **Axios**, **SCSS**, **vue-draggable-next** та **json-server**.
 
-## Recommended IDE Setup
+---
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## ⚙️ Технології
 
-## Type Support for `.vue` Imports in TS
+- Vue 3 (Composition API)
+- TypeScript
+- Pinia (менеджмент стану)
+- Axios (HTTP)
+- SCSS (стилізація)
+- vue-draggable-next (drag-and-drop)
+- json-server (мокове API)
+- LocalStorage (збереження стану між перезавантаженнями)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## 🚀 Запуск
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+1. Встанови залежності:
 
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+2. Встанови залежності:
 
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+3. Запусти моковий API (json-server):
 
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+```bash
+npm run server
 ```
