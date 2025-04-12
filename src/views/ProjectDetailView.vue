@@ -7,6 +7,8 @@
   import { TASK_STATUSES, type Task, type TaskSortKey, type TaskStatus } from '@/types/task';
   import CustomTable from '@/components/tables/CustomTable.vue';
   import TaskModal from '@/components/modals/TaskModal.vue'
+import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
+import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
 
 type TaskColumn = {
   key: keyof Task | 'tasksCount';
@@ -16,11 +18,11 @@ type TaskColumn = {
 };
 
 const taskColumns: TaskColumn[] = [
-  { key: 'id', label: 'ID', sortable: true },
-  { key: 'name', label: 'Назва', sortable: true },
-  { key: 'assignee', label: 'Виконавець', sortable: true },
-  { key: 'status', label: 'Статус', sortable: true },
-  { key: 'dueDate', label: 'Термін виконання', sortable: true  },
+  { key: 'id', label: 'ID', sortable: true, width: 50 },
+  { key: 'name', label: 'Назва', sortable: true, width: 75 },
+  { key: 'assignee', label: 'Виконавець', sortable: true, width: 75 },
+  // { key: 'status', label: 'Статус', sortable: true },
+  { key: 'dueDate', label: 'Термін виконання', sortable: true, width: 100  },
 ];
 
   const route = useRoute();
@@ -86,37 +88,47 @@ const taskColumns: TaskColumn[] = [
 <template>
   <main>
     <div class="container">
-      <div v-if="isProjectsLoading || isTasksLoading">Завантаження завдань...</div>
+      <div v-if="isProjectsLoading || isTasksLoading" class="spinner">
+        <BaseSpinner />
+      </div>
       <div v-else>
-        <h1>Проєкт: {{ project && project.name }}</h1>
+        <div class="row justify-between align-center">
+          <h1>Project: {{ project && project.name }}</h1>
+          <button class="btn--primary">Edit Project</button>
+        </div>
+        <p class="description" v-if="project?.description">{{ project?.description }}</p>
 
-        <div class="filters">
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Пошук за назвою"
-          />
-
-          <select v-model="filterStatus">
-            <option value="">Усі статуси</option>
-            <option v-for="status in TASK_STATUSES" :key="status" :value="status">
-              {{ status }}
-            </option>
-          </select>
-
-          <button @click="isModalOpen = true">Open Modal</button>
+        <div class="filters-container">
+          <div class="filters">
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Search by name"
+              class="filters__input"
+            />
+  
+            <CustomSelect class="filters__select" v-model="filterStatus">
+              <option class="filters__option" value="">All statuses</option>
+              <option class="filters__option" v-for="status in TASK_STATUSES" :key="status" :value="status">
+                {{ status }}
+              </option>
+            </CustomSelect>
+          </div>
+          <button class="btn--primary" @click="isModalOpen = true">Створити завдання</button>
         </div>
         
         <div class="table-list">
           <div class="status-section" v-for="status in TASK_STATUSES" :key="status">
-            <h2>{{ status }}</h2>
-            <CustomTable
-              :data="getTasksByStatus(status)"
-              :columns="taskColumns"
-              :draggable="true"
-              :group="status"
-              @drop="handleDrop"
-            />
+            <h4>{{ status }}</h4>
+            <div class="table-container">
+              <CustomTable
+                :data="getTasksByStatus(status)"
+                :columns="taskColumns"
+                :draggable="true"
+                :group="status"
+                @drop="handleDrop"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -126,28 +138,76 @@ const taskColumns: TaskColumn[] = [
 </template>
 
 <style scoped lang="scss">
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .filters {
   display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
+  flex-grow: 1;
 
-  input,
-  select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  &__input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    flex-grow: 1;
+    max-width: 300px;
   }
+
+  &__select {
+    --icon-color: var(--secondary-color);
+
+    border: 1px solid var(--primary-color);
+    border-radius: var(--input-border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+  }
+
+  &__option {
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+  }
+}
+
+.filters-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  gap: 16px 60px;
+}
+
+.table-container {
+  max-width: 100%;
+  flex-grow: 1;
+  margin-top: 24px;
 }
 
 .table-list {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 25px;
+  gap: 16px
 }
 
 .status-section {
-  max-width: 100%;
+  flex-grow: 1;
+
+  margin-top: 24px;
+  border-radius: 16px;
+  padding: 16px;
+  width: 0;
+  flex-basis: 300px;
+  background-color: var(--secondary-color);
+}
+
+.description {
+  margin-top: 25px;
 }
 </style>

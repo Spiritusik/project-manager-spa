@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineProps, ref, computed, watch } from 'vue';
 import draggable from 'vuedraggable';
+import ArrowUp from '../ui/icons/ArrowUp.vue';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -24,7 +25,7 @@ const sortKeys = new Set();
 const columns = ref(props.columns.map(col => {
   sortKeys.add(col.key);
   return { 
-    width: col.width || 100, 
+    width: col.width || 75, 
     ...col 
   }
 }));
@@ -140,12 +141,33 @@ const onClick = (item: any) => {
 </script>
 
 <template>
-  <div class="grid-table">
-    <div class="row header">
+  <div class="table">
+    <div 
+      class="table__row table__row--header"
+    >
+      <div
+        v-if="isDraggable"
+        class="table__cell table__cell--header table__cell--drag-handle"
+      >
+        ⠿
+      </div>
       <template v-for="(col, index) in columns" :key="col.key">
-        <div class="cell header-cell" @click="toggleSort(col.key)" :style="{ width: col.width + 'px' }">
-          {{ col.label }}
-          <div class="resizer" @mousedown.prevent="startResize($event, index)"></div>
+        <div
+          class="table__cell table__cell--header"
+          @click="toggleSort(col.key)"
+          :style="{ width: col.width + 'px' }"
+        >
+          <span class="table__text">{{ col.label }}</span>
+          <span
+            class="table__sort-icon"
+            :class="col.key === sortKey ? sortOrder : ''"
+          >
+            <ArrowUp />
+          </span>
+          <div
+            class="table__resizer"
+            @mousedown.prevent="startResize($event, index)"
+          ></div>
         </div>
       </template>
     </div>
@@ -154,93 +176,207 @@ const onClick = (item: any) => {
       v-if="isDraggable"
       v-model="data"
       :group="{ name: groupName, pull: true, put: true }"
+      handle=".table__cell--drag-handle"
       item-key="id"
       @change="onChange"
     >
-      <template #item="{ element, index }">
-      <div class="row draggrable">
-        <div
-          class="cell"
-          v-for="(col, colIndex) in columns"
-          :key="col.key"
-          :style="{ width: col.width + 'px' }"
-        >
-          {{ element[col.key] }}
-          <div class="resizer" @mousedown.prevent="startResize($event, colIndex)"></div>
+      <template #item="{ element }">
+        <div class="table__row">
+          <div class="table__cell table__cell--drag-handle">⠿</div>
+          <div
+            class="table__cell"
+            v-for="(col, colIndex) in columns"
+            :key="col.key"
+            :style="{ width: col.width + 'px' }"
+          >
+            <span class="table__text">{{ element[col.key] }}</span>
+            <div
+              class="table__resizer"
+              @mousedown.prevent.stop="startResize($event, colIndex)"
+            ></div>
+          </div>
         </div>
-      </div>
-    </template>
+      </template>
+      <template #footer v-if="!data.length">
+        <div 
+          class="table__drop-placeholder" 
+          :style="{
+            width: `${columns.reduce((accumulator, currentValue) => accumulator + currentValue.width, 24)}px`,
+          }">
+          Drag items here to add them to this group, or create a new item with this group.
+        </div>
+      </template>
     </draggable>
 
     <template v-else>
-      <div class="row" v-for="(item, rowIndex) in data" :key="rowIndex" @click="onClick(item)">
+      <div
+        class="table__row"
+        v-for="(item, rowIndex) in data"
+        :key="rowIndex"
+        @click="onClick(item)"
+      >
         <div
-          class="cell"
+          class="table__cell"
           v-for="(col, index) in columns"
           :key="col.key"
           :style="{ width: col.width + 'px' }"
         >
-          {{ item[col.key] }}
-          <div class="resizer" @mousedown="startResize($event, index)"></div>
+          <span class="table__text">{{ item[col.key] }}</span>
+          <div
+            class="table__resizer"
+            @mousedown="startResize($event, index)"
+          ></div>
         </div>
+      </div>
+      <div 
+        v-if="!data.length"
+        class="table__drop-placeholder" 
+        :style="{
+          width: `${columns.reduce((accumulator, currentValue) => accumulator + currentValue.width, 0)}px`,
+        }">
+        No data
       </div>
     </template>
   </div>
 </template>
 
-
 <style scoped lang="scss">
-.grid-table {
+.table {
   font-family: sans-serif;
-  border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
+
+  overflow: auto;
+  border: 1px solid var(--table-border-color);
   width: fit-content;
   max-width: 100%;
-}
+  
+  font-size: 14px;
 
-.row {
-  display: flex;
+  &__row {
+    display: flex;
+    cursor: pointer;
+    background-color: var(--table-body-color);
+    width: fit-content;
 
-  &:hover {
-    background-color: #f3f3f3;
+    &:hover {
+      background-color: var(--table-body-hover-color);
+    }
+
+    &--header {
+      background: var(--table-header-color);
+      font-weight: bold;
+      user-select: none;
+      color: var(--header-color);
+
+      &:hover {
+        background: var(--table-header-color);
+      }
+    }
+
+    &:first-child {
+      .table__cell {
+        border-top-width: 0;
+      }
+    }
+
+    &:last-child {
+      .table__cell {
+        border-bottom-width: 0;
+      }
+    }
   }
 
-  & + .row {
-    border-top: 1px solid #ccc;
+  &__cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: fit-content;
+    border: solid black;
+    border-width: 0 0 1px;
+    padding: 5px 10px 5px 5px;
+    box-sizing: border-box;
+
+    &--header {
+      &:hover .table__sort-icon {
+        opacity: 0.6;
+      }
+
+      .table__sort-icon.asc,
+      .table__sort-icon.desc {
+        opacity: 1;
+      }
+    }
+
+    &--drag-handle {
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      width: 24px;
+      user-select: none;
+    }
+
+    &:last-child {
+      .table__resizer {
+        border-right-width: 0;
+      }
+    }
   }
 
-  cursor: pointer;
-}
+  &__text {
+    display: inline-block;
+    flex-grow: 1;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 
-.cell {
-  position: relative;
-  padding: 0.5rem;  
-  border-right: 1px solid #ccc;
-  box-sizing: border-box;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+  &__sort-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    justify-self: flex-end;
+    opacity: 0;
+    transition: all 0.3s linear;
 
-.header-cell {
-  position: relative;
-  background: #f0f0f0;
-  font-weight: bold;
-  user-select: none;
-}
+    &.desc {
+      transform: rotate(-180deg);
+    }
 
-.resizer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 6px;
-  height: 100%;
-  cursor: col-resize;
-  z-index: 10;
-}
+    svg {
+      height: 0.8em;
 
-.draggrable {
-  cursor: grab;
+      fill: var(--secondary-color);
+    }
+  }
+
+  &__resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    border-right: 1px solid black;
+    cursor: col-resize;
+    z-index: 10;
+  }
+  
+  &__drop-placeholder {
+    padding: 5px;
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0;
+
+    &:has(+ .table__row) {
+      display: none;
+    }
+
+    & + .table__row {
+      border-top: 1px solid var(--primary-color)
+    }
+  }
 }
 </style>

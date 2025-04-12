@@ -7,19 +7,22 @@
   import { useTaskStore } from '@/stores/taskStore';
   import ProjectModal from '@/components/modals/ProjectModal.vue'
   import CustomTable from '@/components/tables/CustomTable.vue';
+  import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
+import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
 
-  type ProjectColumn = {
+  interface ProjectColumn {
     key: keyof Project | 'tasksCount';
     label: string;
     sortable?: boolean;
+    width?: number;
   };
 
   const projectColumns: ProjectColumn[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'name', label: 'Назва', sortable: true },
-    { key: 'status', label: 'Статус', sortable: true },
-    { key: 'tasksCount', label: 'К-сть завдань', sortable: true },
-    { key: 'createdAt', label: 'Дата створення', sortable: true  },
+    { key: 'id', label: 'ID', sortable: true, width: 100 },
+    { key: 'name', label: 'Name', sortable: true, width: 150 },
+    { key: 'status', label: 'Status', sortable: true, width: 100 },
+    { key: 'tasksCount', label: 'Tasks Count', sortable: true, width: 150 },
+    { key: 'createdAt', label: 'Created At', sortable: true, width: 200  },
   ];
 
   const router = useRouter();
@@ -56,31 +59,38 @@
 <template>
   <main>
     <div class="container">
-      <h1>Проєкти</h1>
-      <div v-if="isLoading">Завантаження...</div>
+      <div class="row justify-between align-center">
+        <h1>Projects</h1>
+        <button class="btn--primary" @click="isModalOpen = true">Create Project</button>
+
+      </div>
+      <div v-if="isLoading" class="spinner">
+        <BaseSpinner />
+      </div>
       <div v-else>
         <div class="filters">
           <input
             v-model="searchName"
             type="text"
-            placeholder="Пошук за назвою"
+            placeholder="Search by name"
+            class="filters__input"
           />
 
-          <select v-model="filterStatus">
-            <option value="">Усі статуси</option>
-            <option v-for="status in PROJECT_STATUSES" :key="status" :value="status">
+          <CustomSelect class="filters__select" v-model="filterStatus">
+            <option class="filters__option" value="">All statuses</option>
+            <option class="filters__option" v-for="status in PROJECT_STATUSES" :key="status" :value="status">
               {{ status }}
             </option>
-          </select>
-
-          <button @click="isModalOpen = true">Open Modal</button>
+          </CustomSelect>
         </div>
         
-        <CustomTable
-          :data="filteredProjects"
-          :columns="projectColumns"
-          @click:item="onClick"
-        />
+        <div class="table-container">
+          <CustomTable
+            :data="filteredProjects"
+            :columns="projectColumns"
+            @click:item="onClick"
+          />
+        </div>
       </div>
     </div>
   </main>
@@ -89,16 +99,40 @@
 
 
 <style scoped lang="scss">
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .filters {
   display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
+  flex-grow: 1;
+  gap: 24px;
 
-  input,
-  select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  margin-top: 24px;
+
+  &__input {
+    flex-grow: 1;
+    max-width: 300px;
   }
+
+  &__select {
+    --icon-color: var(--secondary-color);
+
+    border: 1px solid var(--primary-color);
+    border-radius: var(--input-border-radius);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+  }
+
+  &__option {
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+  }
+}
+
+.table-container {
+  margin-top: 24px;
 }
 </style>

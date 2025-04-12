@@ -1,0 +1,19 @@
+input,
+select,
+button,
+textarea {
+  padding: 10px;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--input-border-radius);
+  transition: all 230ms ease-in-out;
+}
+
+select {
+  padding-right: 20px;
+  background-position: right 20px center
+}
+
+button,
+select {
+  cursor: pointer;
+}

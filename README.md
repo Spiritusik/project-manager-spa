@@ -12,6 +12,7 @@
 - Axios (HTTP)
 - SCSS (стилізація)
 - vue-draggable-next (drag-and-drop)
+- vue-chartjs + chart.js (графіки)
 - json-server (мокове API)
 - LocalStorage (збереження стану між перезавантаженнями)
 

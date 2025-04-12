@@ -1,0 +1,23 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--page-color);
+  font-family: 'Poppins', sans-serif;
+  line-height: 140%;
+}
+
+main {
+  padding: 96px 0;
+}
