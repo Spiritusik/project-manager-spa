@@ -24,7 +24,7 @@
 
   const route = useRoute();
   const projectId = String(route.params.id);
-  const STORAGE_KEY = `ProjectDetailView`
+  const STORAGE_KEY = `${route.path}:ProjectDetailView`
 
   const taskColumns: TaskColumn[] = [
     { key: 'id', label: 'ID', sortable: true, width: 50 },
