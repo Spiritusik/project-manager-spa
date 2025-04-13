@@ -1,4 +1,4 @@
-@import '../abstracts/mixins';
+@use  '../abstracts/mixins' as *;
 
 .container {
   margin: 0 auto;
