@@ -14,6 +14,8 @@ interface Column {
 
 type SortKey = typeof props.columns[number]['key'];
 
+const sortIconWidth: number = 24;
+
 const props = defineProps<{
   columns: Column[];
   data: Record<string, any>[];
@@ -71,7 +73,10 @@ const sortData = () => {
   });
 };
 
-const toggleSort = (key: SortKey) => {
+const toggleSort = (e: MouseEvent, key: SortKey) => {
+  const target = e.target as HTMLElement;
+  if (target.classList.contains('table__resizer')) return;
+
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   } else {
@@ -131,9 +136,15 @@ const onChange = (evt: any) => {
       toGroup: groupName
     });
   }
+  if (evt.moved) {
+    sortKey.value = '' as SortKey;
+  }
 };
 
-const onClick = (item: any) => {
+const onClick = (e: MouseEvent, item: any) => {
+  const target = e.target as HTMLElement;
+  if (['table__resizer', 'table__cell--drag-handle'].some(cls => target.classList.contains(cls))) return;
+
   emit('click:item', {
     item,
   });
@@ -154,7 +165,7 @@ const onClick = (item: any) => {
       <template v-for="(col, index) in columns" :key="col.key">
         <div
           class="table__cell table__cell--header"
-          @click="toggleSort(col.key)"
+          @click="toggleSort($event, col.key)"
           :style="{ width: col.width + 'px' }"
         >
           <span class="table__text">{{ col.label }}</span>
@@ -166,7 +177,7 @@ const onClick = (item: any) => {
           </span>
           <div
             class="table__resizer"
-            @mousedown.prevent="startResize($event, index)"
+            @mousedown="startResize($event, index)"
           ></div>
         </div>
       </template>
@@ -174,14 +185,14 @@ const onClick = (item: any) => {
 
     <draggable
       v-if="isDraggable"
-      v-model="data"
-      :group="{ name: groupName, pull: true, put: true }"
       handle=".table__cell--drag-handle"
       item-key="id"
+      :group="{ name: groupName, pull: true, put: true }"
+      v-model="data"
       @change="onChange"
     >
       <template #item="{ element }">
-        <div class="table__row">
+        <div @click="onClick($event, element)" class="table__row">
           <div class="table__cell table__cell--drag-handle">⠿</div>
           <div
             class="table__cell"
@@ -192,7 +203,7 @@ const onClick = (item: any) => {
             <span class="table__text">{{ element[col.key] }}</span>
             <div
               class="table__resizer"
-              @mousedown.prevent.stop="startResize($event, colIndex)"
+              @mousedown="startResize($event, colIndex)"
             ></div>
           </div>
         </div>
@@ -201,7 +212,7 @@ const onClick = (item: any) => {
         <div 
           class="table__drop-placeholder" 
           :style="{
-            width: `${columns.reduce((accumulator, currentValue) => accumulator + currentValue.width, 24)}px`,
+            width: `${columns.reduce((accumulator, currentValue) => accumulator + currentValue.width, sortIconWidth)}px`,
           }">
           Drag items here to add them to this group, or create a new item with this group.
         </div>
@@ -213,7 +224,7 @@ const onClick = (item: any) => {
         class="table__row"
         v-for="(item, rowIndex) in data"
         :key="rowIndex"
-        @click="onClick(item)"
+        @click="onClick($event, item)"
       >
         <div
           class="table__cell"
@@ -271,6 +282,10 @@ const onClick = (item: any) => {
 
       &:hover {
         background: var(--table-header-color);
+      }
+
+      .table__cell--drag-handle {
+        cursor: default;
       }
     }
 
@@ -365,13 +380,14 @@ const onClick = (item: any) => {
   }
   
   &__drop-placeholder {
+    display: none;
     padding: 5px;
     text-align: center;
     width: 100%;
     flex-shrink: 0;
 
-    &:has(+ .table__row) {
-      display: none;
+    &:only-child {
+      display: block;
     }
 
     & + .table__row {

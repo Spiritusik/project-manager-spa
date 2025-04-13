@@ -31,8 +31,8 @@ function close() {
 
 .modal-content {
   background: white;
-  padding: 1rem;
+  padding: 24px;
   border-radius: 8px;
-  min-width: 300px;
+  min-width: 400px;
 }
 </style>

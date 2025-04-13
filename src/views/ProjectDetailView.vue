@@ -9,6 +9,9 @@
   import TaskModal from '@/components/modals/TaskModal.vue'
 import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
 import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
+import { useDialog } from '@/composables/useDialog';
+import type { Project } from '@/types/project';
+import ProjectModal from '@/components/modals/ProjectModal.vue';
 
 type TaskColumn = {
   key: keyof Task | 'tasksCount';
@@ -19,10 +22,10 @@ type TaskColumn = {
 
 const taskColumns: TaskColumn[] = [
   { key: 'id', label: 'ID', sortable: true, width: 50 },
-  { key: 'name', label: 'Назва', sortable: true, width: 75 },
-  { key: 'assignee', label: 'Виконавець', sortable: true, width: 75 },
-  // { key: 'status', label: 'Статус', sortable: true },
-  { key: 'dueDate', label: 'Термін виконання', sortable: true, width: 100  },
+  { key: 'name', label: 'Name', sortable: true, width: 75 },
+  { key: 'assignee', label: 'Assignee', sortable: true, width: 75 },
+  // { key: 'status', label: 'Status', sortable: true },
+  { key: 'dueDate', label: 'Deadline', sortable: true, width: 100  },
 ];
 
   const route = useRoute();
@@ -39,7 +42,8 @@ const taskColumns: TaskColumn[] = [
 
   const search = ref('');
   const filterStatus = ref('');
-  const isModalOpen = ref(false);
+  const taskModal = useDialog<Task>()
+  const projectModal = useDialog<Project>()
 
   const filteredTasks = computed(() => {
     return tasks.value.filter(task => {
@@ -54,10 +58,6 @@ const taskColumns: TaskColumn[] = [
   const getTasksByStatus = (status: string) => {
     return filteredTasks.value.filter(task => task.status === status);
   };
-
-  const closeModal = () => {
-    isModalOpen.value = false
-  }
 
   const handleDrop = async ({ item, toGroup }: { item: Task; toGroup: string }) => {
     if (item.status === toGroup) return;
@@ -77,6 +77,10 @@ const taskColumns: TaskColumn[] = [
     }
   };
 
+  const handleProjectEdit = () => {
+    projectModal.handleOpen(project.value);
+  }
+
   onMounted(async () => {
     if (!projects.value.length) {
       await projectStore.fetchProjects();
@@ -94,7 +98,7 @@ const taskColumns: TaskColumn[] = [
       <div v-else>
         <div class="row justify-between align-center">
           <h1>Project: {{ project && project.name }}</h1>
-          <button class="btn--primary">Edit Project</button>
+          <button @click="handleProjectEdit" class="btn--primary">Edit Project</button>
         </div>
         <p class="description" v-if="project?.description">{{ project?.description }}</p>
 
@@ -107,14 +111,14 @@ const taskColumns: TaskColumn[] = [
               class="filters__input"
             />
   
-            <CustomSelect class="filters__select" v-model="filterStatus">
+            <CustomSelect rounded="right" class="filters__select" v-model="filterStatus">
               <option class="filters__option" value="">All statuses</option>
               <option class="filters__option" v-for="status in TASK_STATUSES" :key="status" :value="status">
                 {{ status }}
               </option>
             </CustomSelect>
           </div>
-          <button class="btn--primary" @click="isModalOpen = true">Створити завдання</button>
+          <button class="btn--primary" @click="taskModal.handleOpen()">Create Task</button>
         </div>
         
         <div class="table-list">
@@ -127,6 +131,7 @@ const taskColumns: TaskColumn[] = [
                 :draggable="true"
                 :group="status"
                 @drop="handleDrop"
+                @click:item="(payload) => taskModal.handleOpen(payload.item)"
               />
             </div>
           </div>
@@ -134,7 +139,18 @@ const taskColumns: TaskColumn[] = [
       </div>
     </div>
   </main>
-  <TaskModal v-if="isModalOpen" :project-id="project ? project.id : ''" :on-close="closeModal" :on-confirm="taskStore.addTask"/>
+  <TaskModal 
+    v-if="taskModal.open.value" 
+    :project-id="projectId"
+    :on-close="taskModal.handleClose"
+    :task="taskModal.data.value"
+  />
+
+  <ProjectModal 
+    v-if="projectModal.open.value"
+    :on-close="projectModal.handleClose"
+    :project="projectModal.data.value"
+  />
 </template>
 
 <style scoped lang="scss">
@@ -153,18 +169,6 @@ const taskColumns: TaskColumn[] = [
     border-bottom-right-radius: 0;
     flex-grow: 1;
     max-width: 300px;
-  }
-
-  &__select {
-    --icon-color: var(--secondary-color);
-
-    border: 1px solid var(--primary-color);
-    border-radius: var(--input-border-radius);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: 0;
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
   }
 
   &__option {
@@ -203,6 +207,7 @@ const taskColumns: TaskColumn[] = [
   border-radius: 16px;
   padding: 16px;
   width: 0;
+  max-width: fit-content;
   flex-basis: 300px;
   background-color: var(--secondary-color);
 }

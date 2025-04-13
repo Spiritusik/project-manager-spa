@@ -17,3 +17,8 @@ button,
 select {
   cursor: pointer;
 }
+
+.error-message {
+  font-size: 12px;
+  color: var(--error-color);
+}

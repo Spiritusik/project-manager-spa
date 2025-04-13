@@ -9,6 +9,7 @@
   import CustomTable from '@/components/tables/CustomTable.vue';
   import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
 import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
+import { useDialog } from '@/composables/useDialog';
 
   interface ProjectColumn {
     key: keyof Project | 'tasksCount';
@@ -32,7 +33,7 @@ import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
   
   const searchName = ref('');
   const filterStatus = ref('');
-  const isModalOpen = ref(false);
+  const projectModal = useDialog<Project>()
 
   const filteredProjects = computed(() => {
     return projects.value.filter(project => {
@@ -41,10 +42,6 @@ import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
       return matchesName && matchesStatus;
     })
   })
-
-  const closeModal = () => {
-    isModalOpen.value = false
-  }
 
   const onClick = ({ item }: { item: Project }) => {
     router.push(`/projects/${item.id}`)
@@ -61,7 +58,7 @@ import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
     <div class="container">
       <div class="row justify-between align-center">
         <h1>Projects</h1>
-        <button class="btn--primary" @click="isModalOpen = true">Create Project</button>
+        <button class="btn--primary" @click="projectModal.handleOpen()">Create Project</button>
 
       </div>
       <div v-if="isLoading" class="spinner">
@@ -94,7 +91,12 @@ import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
       </div>
     </div>
   </main>
-  <ProjectModal v-if="isModalOpen" :on-close="closeModal" :on-confirm="projectStore.addProject"/>
+
+  <ProjectModal 
+    v-if="projectModal.open.value"
+    :on-close="projectModal.handleClose"
+    :project="projectModal.data.value"
+  />
 </template>
 
 
@@ -115,15 +117,6 @@ import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
   &__input {
     flex-grow: 1;
     max-width: 300px;
-  }
-
-  &__select {
-    --icon-color: var(--secondary-color);
-
-    border: 1px solid var(--primary-color);
-    border-radius: var(--input-border-radius);
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
   }
 
   &__option {

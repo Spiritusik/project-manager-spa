@@ -11,15 +11,8 @@
       "id": "3fa7",
       "name": "Second",
       "description": "Test",
-      "status": "Active",
-      "createdAt": "2025-04-07T20:09:21.122Z"
-    },
-    {
-      "id": "9e37",
-      "name": "Third",
-      "description": "Test",
       "status": "Completed",
-      "createdAt": "2025-04-09T18:21:21.103Z"
+      "createdAt": "2025-04-07T20:09:21.122Z"
     },
     {
       "id": "5f14",
@@ -27,13 +20,6 @@
       "description": "description",
       "status": "Archived",
       "createdAt": "2025-04-09T18:34:13.503Z"
-    },
-    {
-      "id": "f521",
-      "name": "Sixth",
-      "description": "Description",
-      "status": "Active",
-      "createdAt": "2025-04-09T19:07:53.231Z"
     }
   ],
   "tasks": [
@@ -46,12 +32,12 @@
       "dueDate": "2022-02-20"
     },
     {
-      "id": "512c",
       "projectId": "6089",
       "name": "Second",
-      "assignee": "Nikita",
+      "assignee": "Nikyta",
       "status": "To Do",
-      "dueDate": "2023-03-20"
+      "dueDate": "2023-03-20",
+      "id": "512c"
     },
     {
       "id": "6977",
@@ -66,7 +52,7 @@
       "projectId": "6089",
       "name": "Fifth",
       "assignee": "Nikyta",
-      "status": "To Do",
+      "status": "Done",
       "dueDate": "2025-04-09"
     },
     {
@@ -92,6 +78,22 @@
       "assignee": "Nikyta",
       "status": "In Progress",
       "dueDate": "2025-12-02"
+    },
+    {
+      "id": "9043",
+      "projectId": "6089",
+      "name": "7",
+      "assignee": "Dmitry",
+      "status": "To Do",
+      "dueDate": "2025-02-28"
+    },
+    {
+      "id": "d9ba",
+      "projectId": "6089",
+      "name": "Test",
+      "assignee": "Nikyta",
+      "status": "In Progress",
+      "dueDate": "2022-02-02"
     }
   ],
   "workers": [

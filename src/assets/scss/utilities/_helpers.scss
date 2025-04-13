@@ -1,3 +1,5 @@
+@import '../abstracts/mixins';
+
 .container {
   margin: 0 auto;
   max-width: 100%;
@@ -20,3 +22,5 @@
     align-items: center;
   }
 }
+
+@include generate-spacing-classes(gap, 6);

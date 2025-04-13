@@ -3,3 +3,11 @@
   align-items: center;
   justify-content: center;
 }
+
+@mixin generate-spacing-classes($property, $count: 10, $step: 8px) {
+  @for $i from 1 through $count {
+    .#{$property}-#{$i} {
+      #{$property}: $i * $step;
+    }
+  }
+}

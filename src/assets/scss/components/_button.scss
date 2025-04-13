@@ -9,4 +9,27 @@
       color: var(--primary-color);
     }
   }
+
+  &--secondary {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: 700;
+
+    &:hover {
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+    }
+  }
+
+  &--error {
+    background-color: var(--secondary-color);
+    border-color: var(--error-color);
+    color: var(--error-color);
+    font-weight: 700;
+
+    &:hover {
+      background-color: var(--error-color);
+      color: var(--secondary-color);
+    }
+  }
 }
