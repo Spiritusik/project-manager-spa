@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useProjectStore } from '@/stores/projectStore';
   import { storeToRefs } from 'pinia';
   import { useRoute } from 'vue-router';
@@ -7,30 +7,32 @@
   import { TASK_STATUSES, type Task, type TaskSortKey, type TaskStatus } from '@/types/task';
   import CustomTable from '@/components/tables/CustomTable.vue';
   import TaskModal from '@/components/modals/TaskModal.vue'
-import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
-import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
-import { useDialog } from '@/composables/useDialog';
-import type { Project } from '@/types/project';
-import ProjectModal from '@/components/modals/ProjectModal.vue';
-import { useToast } from 'vue-toast-notification';
+  import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
+  import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
+  import { useDialog } from '@/composables/useDialog';
+  import type { Project } from '@/types/project';
+  import ProjectModal from '@/components/modals/ProjectModal.vue';
+  import { useToast } from 'vue-toast-notification';
+  import { loadFromStorage, saveToStorage } from '@/utils/localStorage';
 
-type TaskColumn = {
-  key: keyof Task | 'tasksCount';
-  label: string;
-  sortable?: boolean;
-  width?: number;
-};
-
-const taskColumns: TaskColumn[] = [
-  { key: 'id', label: 'ID', sortable: true, width: 50 },
-  { key: 'name', label: 'Name', sortable: true, width: 75 },
-  { key: 'assignee', label: 'Assignee', sortable: true, width: 75 },
-  // { key: 'status', label: 'Status', sortable: true },
-  { key: 'dueDate', label: 'Deadline', sortable: true, width: 100  },
-];
+  type TaskColumn = {
+    key: keyof Task | 'tasksCount';
+    label: string;
+    sortable?: boolean;
+    width?: number;
+  };
 
   const route = useRoute();
   const projectId = String(route.params.id);
+  const STORAGE_KEY = `ProjectDetailView`
+
+  const taskColumns: TaskColumn[] = [
+    { key: 'id', label: 'ID', sortable: true, width: 50 },
+    { key: 'name', label: 'Name', sortable: true, width: 75 },
+    { key: 'assignee', label: 'Assignee', sortable: true, width: 75 },
+    // { key: 'status', label: 'Status', sortable: true },
+    { key: 'dueDate', label: 'Deadline', sortable: true, width: 100  },
+  ];
 
   const projectStore = useProjectStore();
   const taskStore = useTaskStore();
@@ -85,7 +87,20 @@ const taskColumns: TaskColumn[] = [
     projectModal.handleOpen(project.value);
   }
 
+  watch([search, filterStatus], () => {
+    saveToStorage(`${STORAGE_KEY}:filters`, {
+      search: search.value,
+      filterStatus: filterStatus.value,
+    });
+  });
+
   onMounted(async () => {
+    const savedFilters = loadFromStorage<{ search: string; filterStatus: string }>(`${STORAGE_KEY}:filters`);
+    if (savedFilters) {
+      search.value = savedFilters.search;
+      filterStatus.value = savedFilters.filterStatus;
+    }
+
     if (!projects.value.length) {
       await projectStore.fetchProjects();
     }
@@ -134,6 +149,7 @@ const taskColumns: TaskColumn[] = [
                 :columns="taskColumns"
                 :draggable="true"
                 :group="status"
+                :storage-key="`${STORAGE_KEY}:CustomTable:${status}`"
                 @drop="handleDrop"
                 @click:item="(payload) => taskModal.handleOpen(payload.item)"
               />

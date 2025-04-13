@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { defineProps, ref, computed, watch } from 'vue';
+import { defineProps, ref, computed, watch, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 import ArrowUp from '../ui/icons/ArrowUp.vue';
+import { loadFromStorage, saveToStorage } from '@/utils/localStorage';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -21,6 +22,7 @@ const props = defineProps<{
   data: Record<string, any>[];
   draggable?: boolean;
   group?: string;
+  storageKey?: string;
 }>();
 
 const sortKeys = new Set();
@@ -36,6 +38,7 @@ const isDraggable = props.draggable ?? false;
 const groupName = props.group ?? 'default-table-group';
 const sortOrder = ref<SortOrder>('asc');
 const sortKey = ref<SortKey>(props.columns[0]['key']);
+const isResizing = ref(false);
 
 const sortData = () => {
   if(!sortKey.value) return;
@@ -75,7 +78,7 @@ const sortData = () => {
 
 const toggleSort = (e: MouseEvent, key: SortKey) => {
   const target = e.target as HTMLElement;
-  if (target.classList.contains('table__resizer')) return;
+  if (target.classList.contains('table__resizer') || isResizing.value) return;
 
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -88,6 +91,8 @@ const toggleSort = (e: MouseEvent, key: SortKey) => {
 };
 
 const startResize = (e: MouseEvent, colIndex: number) => {
+  isResizing.value = true;
+
   const startX = e.pageX;
   const startWidth = columns.value[colIndex].width;
 
@@ -97,6 +102,7 @@ const startResize = (e: MouseEvent, colIndex: number) => {
   };
 
   const onMouseUp = () => {
+    setTimeout(() => isResizing.value = false);
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
   };
@@ -143,12 +149,50 @@ const onChange = (evt: any) => {
 
 const onClick = (e: MouseEvent, item: any) => {
   const target = e.target as HTMLElement;
-  if (['table__resizer', 'table__cell--drag-handle'].some(cls => target.classList.contains(cls))) return;
+  if (['table__resizer', 'table__cell--drag-handle'].some(cls => target.classList.contains(cls)) || isResizing.value) return;
 
   emit('click:item', {
     item,
   });
 };
+
+watch([sortKey, sortOrder], () => {
+  if (!props.storageKey) return;
+  
+  saveToStorage(`${props.storageKey}:sort`, {
+    sortKey: sortKey.value,
+    sortOrder: sortOrder.value,
+  });
+});
+
+watch(columns, () => {
+  if (!props.storageKey) return;
+  const widths = columns.value.map(col => col.width);
+  saveToStorage(`${props.storageKey}:colWidths`, widths);
+}, { deep: true });
+
+onMounted(() => {
+  if (!props.storageKey) return;
+
+  const sort = loadFromStorage<{
+    sortKey: SortKey;
+    sortOrder: SortOrder;
+  }>(`${props.storageKey}:sort`);
+
+  if(sort && sortKeys.has(sort.sortKey)) {
+    sortKey.value = sort.sortKey;
+    sortOrder.value = sort.sortOrder;
+    sortData();
+  }
+
+  const widths = loadFromStorage<number[]>(`${props.storageKey}:colWidths`);
+  if (widths && widths.length === columns.value.length) {
+    columns.value = columns.value.map((col, i) => ({
+      ...col,
+      width: widths[i],
+    }));
+  }
+})
 </script>
 
 <template>
@@ -263,6 +307,7 @@ const onClick = (e: MouseEvent, item: any) => {
   max-width: 100%;
   
   font-size: 14px;
+  user-select: none;
 
   &__row {
     display: flex;

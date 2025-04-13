@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { type Project, PROJECT_STATUSES } from '@/types/project';
-  import { ref, computed, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { ref, computed, onMounted, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
   import { useProjectStore } from '@/stores/projectStore';
   import { storeToRefs } from 'pinia';
   import { useTaskStore } from '@/stores/taskStore';
@@ -10,6 +10,7 @@
   import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
 import CustomSelect from '@/components/ui/selects/CustomSelect.vue';
 import { useDialog } from '@/composables/useDialog';
+import { loadFromStorage, saveToStorage } from '@/utils/localStorage';
 
   interface ProjectColumn {
     key: keyof Project | 'tasksCount';
@@ -30,7 +31,8 @@ import { useDialog } from '@/composables/useDialog';
   const projectStore = useProjectStore();
   const taskStore = useTaskStore();
   const { projectsWithCount: projects , isLoading } = storeToRefs(projectStore);
-  
+  const STORAGE_KEY = `ProjectView`
+
   const searchName = ref('');
   const filterStatus = ref('');
   const projectModal = useDialog<Project>()
@@ -46,8 +48,20 @@ import { useDialog } from '@/composables/useDialog';
   const onClick = ({ item }: { item: Project }) => {
     router.push(`/projects/${item.id}`)
   }
+  
+  watch([searchName, filterStatus], () => {
+    saveToStorage(`${STORAGE_KEY}:filters`, {
+      search: searchName.value,
+      filterStatus: filterStatus.value,
+    });
+  });
 
   onMounted(async () => {
+    const savedFilters = loadFromStorage<{ search: string; filterStatus: string }>(`${STORAGE_KEY}:filters`);
+    if (savedFilters) {
+      searchName.value = savedFilters.search;
+      filterStatus.value = savedFilters.filterStatus;
+    }
     await projectStore.fetchProjects();
     await taskStore.fetchTasks();
   });
@@ -85,6 +99,7 @@ import { useDialog } from '@/composables/useDialog';
           <CustomTable
             :data="filteredProjects"
             :columns="projectColumns"
+            :storage-key="`${STORAGE_KEY}:CustomTable`"
             @click:item="onClick"
           />
         </div>

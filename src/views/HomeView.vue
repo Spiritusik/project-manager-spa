@@ -82,9 +82,15 @@ onMounted(async () => {
     justify-content: center;
   }
 
+  .chart {
+    margin-top: 48px;
+    background-color: var(--secondary-color);
+    border-radius: 16px;
+    padding: 48px;
+  }
+
   h2 {
     text-align: center;
-    margin-bottom: 24px;
   }
 
 </style>

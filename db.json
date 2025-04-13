@@ -28,7 +28,7 @@
       "projectId": "6089",
       "name": "First",
       "assignee": "Maksym",
-      "status": "To Do",
+      "status": "In Progress",
       "dueDate": "2022-02-20"
     },
     {
@@ -92,7 +92,7 @@
       "projectId": "6089",
       "name": "Test",
       "assignee": "Nikyta",
-      "status": "In Progress",
+      "status": "To Do",
       "dueDate": "2022-02-02"
     },
     {
@@ -100,7 +100,7 @@
       "projectId": "6089",
       "name": "8",
       "assignee": "Maksym",
-      "status": "To Do",
+      "status": "In Progress",
       "dueDate": "2025-04-02"
     },
     {
