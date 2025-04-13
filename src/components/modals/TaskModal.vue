@@ -118,8 +118,8 @@ onMounted(async () => {
       <p class="error-message" v-if="error">{{ error }}</p>
 
       <div class="row justify-between form__footer gap-1">
-        <button class="btn--secondary" @click="onClose">Close</button>
-        <button class="btn--primary" :disabled="isLoading" type="submit">Save</button>
+        <button type="button" class="btn--secondary" @click="onClose">Close</button>
+        <button type="submit" class="btn--primary" :disabled="isLoading">Save</button>
       </div>
     </form>
   </ModalWrapper>
