@@ -6,6 +6,7 @@ import ModalWrapper from './ModalWrapper.vue'
 import { useProjectStore } from '@/stores/projectStore';
 import CustomSelect from '../ui/selects/CustomSelect.vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toast-notification';
 
 const props = defineProps<{
   onClose: () => void;
@@ -23,6 +24,7 @@ const isLoading = ref(false);
 
 const projectStore = useProjectStore();
 const router = useRouter();
+const $toast = useToast();
 
 const closeForm = () => {
   error.value = '';
@@ -44,9 +46,10 @@ const handleSubmit = async () => {
       ? await projectStore.updateProject(props.project.id, { ...props.project, ...form })
       : await projectStore.addProject({ ...form });
     
+    let instance = $toast.success(props.project?.id ? 'Project was updated' : 'Project was created');
     closeForm();
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Сталася невідома помилка';
+    let instance = $toast.error('Something went wrong. Please refresh the page or try again.');
   } finally {
     isLoading.value = false;
   }
@@ -56,9 +59,12 @@ const handleDelete = async () => {
   try {
     props.project?.id && await projectStore.deleteProject(props.project?.id);
 
+    let instance = $toast.success('Project was deleted');
+
     closeForm();
     router.push('/projects');
   } catch (err) {
+    let instance = $toast.error('Something went wrong. Please refresh the page or try again.');
     error.value = err instanceof Error ? err.message : 'An unknown error occurred.';
   }
 }
@@ -69,7 +75,7 @@ const handleDelete = async () => {
     <form class="form" @submit.prevent="handleSubmit">
       <div class="row align-center justify-between gap-1">
         <h4>{{ props.project ? 'Edit' : 'Create' }} Project</h4>
-        <button @click="handleDelete" v-if="props.project" class="btn--error">Delete</button>
+        <button type="button" @click="handleDelete" v-if="props.project" class="btn--error">Delete</button>
       </div>
 
       <div>

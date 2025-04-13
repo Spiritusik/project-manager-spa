@@ -13,6 +13,7 @@
 - SCSS (стилізація)
 - vue-draggable-next (drag-and-drop)
 - vue-chartjs + chart.js (графіки)
+- Vue Toast Notification (повідомлення)
 - json-server (мокове API)
 - LocalStorage (збереження стану між перезавантаженнями)
 

@@ -12,6 +12,7 @@ import BaseSpinner from '@/components/ui/spinners/BaseSpinner.vue';
 import { useDialog } from '@/composables/useDialog';
 import type { Project } from '@/types/project';
 import ProjectModal from '@/components/modals/ProjectModal.vue';
+import { useToast } from 'vue-toast-notification';
 
 type TaskColumn = {
   key: keyof Task | 'tasksCount';
@@ -33,6 +34,7 @@ const taskColumns: TaskColumn[] = [
 
   const projectStore = useProjectStore();
   const taskStore = useTaskStore();
+  const $toast = useToast();
 
   const { projects, isLoading: isProjectsLoading } = storeToRefs(projectStore);
   const { isLoading: isTasksLoading } = storeToRefs(taskStore);
@@ -71,8 +73,10 @@ const taskColumns: TaskColumn[] = [
 
     try {
       await taskStore.updateTask(item.id, { ...item, status });
-      await taskStore.fetchTasksByProject(projectId);
+      // await taskStore.fetchTasksByProject(projectId);
+      let instance = $toast.success('Task was updated');
     } catch (err) {
+      let instance = $toast.error('Something went wrong. Please refresh the page or try again.');
       console.error('Не вдалося оновити статус', err);
     }
   };

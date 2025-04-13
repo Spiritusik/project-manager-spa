@@ -5,6 +5,7 @@ import { TASK_STATUSES, type Task } from '@/types/task';
 import { useWorkerStore } from '@/stores/workerStore';
 import { useTaskStore } from '@/stores/taskStore';
 import CustomSelect from '../ui/selects/CustomSelect.vue';
+import { useToast } from 'vue-toast-notification';
 
 const props = defineProps<{
   onClose: () => void;
@@ -25,6 +26,7 @@ const isLoading = ref(false);
 
 const taskStore = useTaskStore();
 const workerStore = useWorkerStore();
+const $toast = useToast();
 const workers = computed(() => workerStore.workers);
 const isWorkersLoading = computed(() => workerStore.isLoading);
 
@@ -49,8 +51,10 @@ const handleSubmit = async () => {
       ? await taskStore.updateTask(props.task.id, { ...props.task, ...form })
       : await taskStore.addTask({ ...form });
       
+    let instance = $toast.success(props.task?.id ? 'Task was updated' : 'Task was created');
     closeForm();
   } catch (err) {
+    let instance = $toast.error('Something went wrong. Please refresh the page or try again.');
     error.value = err instanceof Error ? err.message : 'An unknown error occurred.';
   } finally {
     isLoading.value = false;
@@ -61,8 +65,11 @@ const handleDelete = async () => {
   try {
     props.task?.id && await taskStore.deleteTask(props.task?.id);
 
+    let instance = $toast.success('Task was deleted');
+
     closeForm();
   } catch (err) {
+    let instance = $toast.error('Something went wrong. Please refresh the page or try again.');
     error.value = err instanceof Error ? err.message : 'An unknown error occurred.';
   }
 }
@@ -77,7 +84,7 @@ onMounted(async () => {
     <form class="form" @submit.prevent="handleSubmit">
       <div class="row align-center justify-between gap-1">
         <h4>{{ props.task ? 'Edit' : 'Create' }} Task</h4>
-        <button @click="handleDelete" v-if="props.task" class="btn--error">Delete</button>
+        <button type="button" @click="handleDelete" v-if="props.task" class="btn--error">Delete</button>
       </div>
       <div>
         <label>Task Name*</label>
